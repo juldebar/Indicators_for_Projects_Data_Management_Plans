@@ -177,23 +177,23 @@ barchart_stacked_area_references_projects <- function(df,type,format){
   
 }
   
-
+# https://www.statmethods.net/graphs/pie.html
 Pie_Chart_references_projects <- function(df,type,format){
   
   filename <- paste("Pie_Chart_references_projects_", Sys.Date(),sep="")
   switch(format,
-         svg={svg(paste(filename,".svg",sep=""), width=15, height=5)},
-         png={png(paste(filename,".png",sep=""), width=1500, height=500)}
+         svg={svg(paste(filename,".svg",sep=""), width=15, height=15)},
+         png={png(paste(filename,".png",sep=""), width=500, height=500)}
   )
   
 # Simple Pie Chart
-slices <- c(10, 12,4, 16, 8)
 slices <- df$Zotero_references_in_Zotero_dedicated_collection
+project <- df$content
 
-lbls <- c("US", "UK", "Australia", "Germany", "France")
-lbls <- df$content
-
-pie(slices, labels = lbls, main="Pie Chart of Countries")
+pie(slices,
+    labels = project,
+    col=rainbow(length(project)),
+    main="References per project")
 dev.off()
 
 }

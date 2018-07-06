@@ -52,12 +52,5 @@ barchart_stacked_area_references_projects(df = COI_Projects,format="png")
 Pie_Chart_references_projects(df = COI_Projects,format="png")
 ################### Add Dynamic Columns ################################
 
-# Simple Pie Chart
-slices <- c(10, 12,4, 16, 8)
-lbls <- c("US", "UK", "Australia", "Germany", "France")
-pie(slices, labels = lbls, main="Pie Chart of Countries")
-dev.off()
-
-
 
 toto <- ReadZotero(group = zotero_group, .params = list(q="http://", qmode = "everything", key = key_zotero_api), temp.file = tempfile(fileext = ".bib", tmpdir = tmpdir), delete.file = FALSE)
