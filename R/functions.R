@@ -92,7 +92,7 @@ add_column_zotero_number_of_references_from_keywords_and_full_text_search <- fun
 # https://www.tutorialspoint.com/r/r_bar_charts.htm
 # colors = c("red","yellow","green")
 
-bar_plot_references_projects <- function(df, type,format){
+bar_plot_references_projects <- function(df,type,format){
   
   switch(type,
          tags={
@@ -145,6 +145,61 @@ bar_plot_references_projects <- function(df, type,format){
   dev.off() # to complete the writing process and return output to your monitor
   
 }
+
+
+
+barchart_stacked_area_references_projects <- function(df,type,format){
+
+  filename <- paste("barchart_stacked_area_references_projects_", Sys.Date(),sep="")
+  switch(format,
+         svg={svg(paste(filename,".svg",sep=""), width=15, height=5)},
+         png={png(paste(filename,".png",sep=""), width=1500, height=500)}
+  )
+  # Create the input vectors.
+  project <- df$content
+  search <- c("Mots-Clés","Plein Texte","Collection dédiée")
+  colors = c("green","orange","red")
+  
+  Values <- matrix(c(df$Zotero_references_with_tags,df$Zotero_references_with_tags_full_text,df$Zotero_references_in_Zotero_dedicated_collection),
+                   nrow = 3,
+                   ncol = nrow(df),
+                   byrow = TRUE
+                   )
+  barplot(Values,
+          main = "Références bibliographiques par projet COI selon le type de recherche",
+          names.arg = project,
+          xlab = "Projet",
+          ylab = "Nombre de références",
+          col = colors)
+  
+  legend("topleft", search, cex = 1.3, fill = colors)
+  dev.off()
+  
+}
+  
+
+Pie_Chart_references_projects <- function(df,type,format){
+  
+  filename <- paste("Pie_Chart_references_projects_", Sys.Date(),sep="")
+  switch(format,
+         svg={svg(paste(filename,".svg",sep=""), width=15, height=5)},
+         png={png(paste(filename,".png",sep=""), width=1500, height=500)}
+  )
+  
+# Simple Pie Chart
+slices <- c(10, 12,4, 16, 8)
+slices <- df$Zotero_references_in_Zotero_dedicated_collection
+
+lbls <- c("US", "UK", "Australia", "Germany", "France")
+lbls <- df$content
+
+pie(slices, labels = lbls, main="Pie Chart of Countries")
+dev.off()
+
+}
+
+
+
 
 #####################################################################################################################################################################
 ################################################################ COMMENTED BELOW####################################################################
