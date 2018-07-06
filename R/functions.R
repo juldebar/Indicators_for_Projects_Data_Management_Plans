@@ -41,31 +41,49 @@ add_column_metadata_number <- function(df){
 
 ######################## Add column Zotero Indicators ###############################
   
-add_column_zotero_number_of_references_from_keywords_and_full_text_search <- function(df, zotero_group, zotero_key, tmpdir){
+add_column_zotero_number_of_references_from_keywords_and_full_text_search <- function(df, zotero_group, key_zotero_api, tmpdir){
   number_publications_of_the_projects_in_Zotero_with_tags = c()
   number_publications_of_the_projects_in_Zotero_full_text = c()
+  number_publications_of_the_project_in_Zotero_dedicated_collection = c()
+
   
-  for(project in df$content){
-    cat("\n")
+  number_projects <- nrow(df)
+  for(project in 1:number_projects){
+    cat(paste("\n Collection Zotero  ",df$Projet_Zotero[project]," du projet",df$content[project],"\n",sep=""))
+
     publications_of_the_project_in_Zotero_with_tags <- ReadZotero(group = zotero_group,
-                                                                  .params = list(tag=project, key = zotero_key),
+                                                                  .params = list(tag=df$content[project], key = key_zotero_api),
                                                                   temp.file = tempfile(fileext = ".bib", tmpdir = tmpdir),
                                                                   delete.file = FALSE
     )
+    if(df$Projet_Zotero[project]!=""){
+    publications_of_the_project_in_Zotero_dedicated_collection <- ReadZotero(group = zotero_group,
+                                                                  .params = list(key = key_zotero_api,collection=df$Projet_Zotero[project]),
+                                                                  temp.file = tempfile(fileext = ".bib", tmpdir = tmpdir),
+                                                                  delete.file = FALSE
+    )
+    }else{publications_of_the_project_in_Zotero_dedicated_collection<-NULL}
     publications_of_the_project_in_Zotero_full_text <- ReadZotero(group = zotero_group,
-                                                                  .params = list(q=project, key = zotero_key),
+                                                                  .params = list(q=df$content[project], key = key_zotero_api),
                                                                   temp.file = tempfile(fileext = ".bib",tmpdir = tmpdir),
                                                                   delete.file = FALSE
     )
-    cat("Number of publications found in Zotero (using keywords)\n")
-    cat(length(number_publications_of_the_projects_in_Zotero_with_tags))
+    cat("\n Number of References keywords \n")
+    cat(length(publications_of_the_project_in_Zotero_with_tags))
+    cat("\n Number of References full text \n")
+    cat(length(publications_of_the_project_in_Zotero_full_text))
+    cat("\n Number of References \n")
+    cat(length(publications_of_the_project_in_Zotero_dedicated_collection))
+    
     number_publications_of_the_projects_in_Zotero_with_tags <- append(number_publications_of_the_projects_in_Zotero_with_tags,length(publications_of_the_project_in_Zotero_with_tags))
     number_publications_of_the_projects_in_Zotero_full_text <- append(number_publications_of_the_projects_in_Zotero_full_text,length(publications_of_the_project_in_Zotero_full_text))
+    number_publications_of_the_project_in_Zotero_dedicated_collection <- append(number_publications_of_the_project_in_Zotero_dedicated_collection,length(publications_of_the_project_in_Zotero_dedicated_collection))
     cat("\n")
     
   }
-  df$Zotero_references_with_tags_with_tags <- number_publications_of_the_projects_in_Zotero_with_tags
+  df$Zotero_references_with_tags <- number_publications_of_the_projects_in_Zotero_with_tags
   df$Zotero_references_with_tags_full_text <- number_publications_of_the_projects_in_Zotero_full_text
+  df$Zotero_references_in_Zotero_dedicated_collection <- number_publications_of_the_project_in_Zotero_dedicated_collection
   return(df)
 }
 
@@ -78,19 +96,25 @@ bar_plot_references_projects <- function(df, type,format){
   
   switch(type,
          tags={
-           main=main=paste("Zotero: recherche par mots-clés@", Sys.Date(), sep="")
-           column=df$Zotero_references_with_tags_with_tags
+           main=main=paste("Zotero: recherche par mots-clés@", Sys.Date()," (Total: ", sum(df$number_publications_of_the_projects_in_Zotero_with_tags), ")", sep="")
+           column=df$Zotero_references_with_tags
            ylab="Number of References"
            filename <- paste("Zotero_references_per_project_search_keywords_", Sys.Date(),sep="")
          },
          full_search={
-           main=paste("Zotero: Bilan par projet pour des recherches plein texte / Titre / Résumé @", Sys.Date(), sep="")
+           main=paste("Zotero:  recherche plein texte (Titre, Résumé, ..) @", Sys.Date()," (Total: ", sum(df$number_publications_of_the_projects_in_Zotero_full_text), ")",sep="")
            column=df$Zotero_references_with_tags_full_text
            ylab="Number of References"
            filename <- paste("Zotero_references_per_project_search_full_text_", Sys.Date(),sep="")
          },
+         bibliographic_references={
+           main=paste("Zotero: bibliographic references per project @", Sys.Date()," (Total: ", sum(df$number_publications_of_the_project_in_Zotero_dedicated_collection), ")",sep="")
+           column=df$Zotero_references_in_Zotero_dedicated_collection
+           ylab="Number of Bibliographic references"
+           filename <- paste("Bibliographic_references_number_per_project_", Sys.Date(),sep="")
+         },
          metadata={
-           main=paste("Metadata per project @", Sys.Date(),"(TOTAL: ",sum(df$Metadata)," metadata)",sep="")
+           main=paste("Geonetwork: metadata per project @", Sys.Date()," (Total: ",sum(df$Metadata)," metadata)",sep="")
            column=df$Metadata
            ylab="Number of Metadata"
            filename <- paste("Metadata_number_per_project_", Sys.Date(),sep="")
