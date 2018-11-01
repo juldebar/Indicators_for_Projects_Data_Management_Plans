@@ -1,0 +1,45 @@
+---
+title       : Projets COI
+subtitle    : Indicateurs sur la bibliographie et les données
+author      : Julien Barde, IRD & COI
+job         : UMR MARBEC, IRD, Sète
+framework   : io2012        # {io2012, html5slides, shower, dzslides, ...}
+highlighter : highlight.js  # {highlight.js, prettify, highlight}
+hitheme     : tomorrow      # 
+widgets     : []            # {mathjax, quiz, bootstrap}
+mode        : selfcontained # {standalone, draft}
+knit        : slidify::knit2slides
+github:
+  user: juldebar
+  repo: Indicators_for_Projects_Data_Management_Plans
+logo        : logo_IRD.svg
+---
+## Nombre total de références bibliographiques : 4615
+<h3>Références issues de l'activité de la COI ou de ses projets</h3>
+
+<iframe src = '/home/julien/Bureau/CODES/Indicators_for_Projects_Data_Management_Plans/indicators/Pie_Chart_summary_2018-11-01.png' height="25%" width="25%"></iframe>
+
+--- 
+## Références bibliographiques des projets: 1646
+<h3>Contribution relative de chaque projet</h3>
+
+<iframe src = '/home/julien/Bureau/CODES/Indicators_for_Projects_Data_Management_Plans/indicators/Pie_Chart_references_projects_2018-11-01.png' height="25%" width="25%"></iframe>
+
+--- 
+## Indicateur sur la bibliographie :
+<h3>Nombre de références par projet: recherche par mots clés</h3>
+
+<iframe src = '/home/julien/Bureau/CODES/Indicators_for_Projects_Data_Management_Plans/indicators/Zotero_references_per_project_search_keywords_2018-11-01.png' height="100%" width="100%"></iframe>
+
+--- 
+
+## Indicateur sur la bibliographie : 
+<h3>Nombre de références par projet selon le type de recherche effectué</h3>
+
+<iframe src = '/home/julien/Bureau/CODES/Indicators_for_Projects_Data_Management_Plans/indicators/barchart_stacked_area_references_projects_2018-11-01.png' height="100%" width="100%"></iframe>
+
+--- 
+
+## Indicateur sur les données
+<h3>Nombre de métadonnées par projet</h3>
+<iframe src = '/home/julien/Bureau/CODES/Indicators_for_Projects_Data_Management_Plans/indicators/Metadata_number_per_project_2018-11-01.png'height="100%" width="100%"></iframe>
