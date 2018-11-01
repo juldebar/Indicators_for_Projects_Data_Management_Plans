@@ -1,3 +1,4 @@
+# https://rstudio-pubs-static.s3.amazonaws.com/244996_aed62d75601447e0845e6dfe4cd7f8a5.html#plot_with_x_axis_added_with_mtext()
 ################################################################################################################################
 if (!require("pacman")) install.packages("pacman")
 pacman::p_load(timevis, timeline, dplyr,gsheet,RefManageR)
@@ -53,19 +54,19 @@ add_column_zotero_number_of_references_from_keywords_and_full_text_search <- fun
 
     publications_of_the_project_in_Zotero_with_tags <- ReadZotero(group = zotero_group,
                                                                   .params = list(tag=df$content[project], key = key_zotero_api),
-                                                                  temp.file = tempfile(fileext = ".bib", tmpdir = tmpdir),
+                                                                  temp.file = tempfile(pattern = paste0(df$content[project],"_keyowrds_",Sys.Date()),fileext = ".bib", tmpdir = tmpdir),
                                                                   delete.file = FALSE
     )
     if(df$Projet_Zotero[project]!=""){
     publications_of_the_project_in_Zotero_dedicated_collection <- ReadZotero(group = zotero_group,
                                                                   .params = list(key = key_zotero_api,collection=df$Projet_Zotero[project]),
-                                                                  temp.file = tempfile(fileext = ".bib", tmpdir = tmpdir),
+                                                                  temp.file = tempfile(pattern = paste0(df$content[project],"_collection_",Sys.Date()),fileext = ".bib", tmpdir = tmpdir),
                                                                   delete.file = FALSE
     )
     }else{publications_of_the_project_in_Zotero_dedicated_collection<-NULL}
     publications_of_the_project_in_Zotero_full_text <- ReadZotero(group = zotero_group,
                                                                   .params = list(q=df$content[project], key = key_zotero_api),
-                                                                  temp.file = tempfile(fileext = ".bib",tmpdir = tmpdir),
+                                                                  temp.file = tempfile(pattern = paste0(df$content[project],"_full_text_",Sys.Date()),fileext = ".bib",tmpdir = tmpdir),
                                                                   delete.file = FALSE
     )
     cat("\n Number of References keywords \n")
@@ -96,22 +97,22 @@ bar_plot_references_projects <- function(df,type,format){
   
   switch(type,
          tags={
-           main=main=paste("Zotero: recherche par mots-clés@", Sys.Date()," (Total: ", sum(df$number_publications_of_the_projects_in_Zotero_with_tags), ")", sep="")
+           main=paste("Zotero: recherche par mots-clés@", Sys.Date()," (Total: ", sum(df$Zotero_references_with_tags), " / ",Zotero_total_projects,")", sep="")
            column=df$Zotero_references_with_tags
            ylab="Number of References"
            filename <- paste("Zotero_references_per_project_search_keywords_", Sys.Date(),sep="")
          },
          full_search={
-           main=paste("Zotero:  recherche plein texte (Titre, Résumé, ..) @", Sys.Date()," (Total: ", sum(df$number_publications_of_the_projects_in_Zotero_full_text), ")",sep="")
+           main=paste("Zotero:  recherche plein texte (Titre, Résumé, ..) @", Sys.Date()," (Total: ", sum(df$Zotero_references_with_tags_full_text), " / ",Zotero_total_projects,")",sep="")
            column=df$Zotero_references_with_tags_full_text
            ylab="Number of References"
            filename <- paste("Zotero_references_per_project_search_full_text_", Sys.Date(),sep="")
          },
          bibliographic_references={
-           main=paste("Zotero: bibliographic references per project @", Sys.Date()," (Total: ", sum(df$number_publications_of_the_project_in_Zotero_dedicated_collection), ")",sep="")
+           main=paste("Number of bibliographic references in the dedicated Zotero Collection @", Sys.Date()," (Total: ", sum(df$Zotero_references_in_Zotero_dedicated_collection), " / ",Zotero_total_projects,")",sep="")
            column=df$Zotero_references_in_Zotero_dedicated_collection
            ylab="Number of Bibliographic references"
-           filename <- paste("Bibliographic_references_number_per_project_", Sys.Date(),sep="")
+           filename <- paste("Bibliographic_references_number_in_the_dedicated_Zotero_collection_of_the_project_", Sys.Date(),sep="")
          },
          metadata={
            main=paste("Geonetwork: metadata per project @", Sys.Date()," (Total: ",sum(df$Metadata)," metadata)",sep="")
@@ -127,16 +128,24 @@ bar_plot_references_projects <- function(df,type,format){
          png={png(paste(filename,".png",sep=""), width=1500, height=500)}
   )
   
+  # par(mar = c(3,3,1,1))
+  par(mar=c(18, 5, 5, 5), mgp=c(3, 1, 0), las=0)
   
   barplot(column,
           names.arg=df$content,
-          xlab="Project Name",
+          xlab="",
           ylab=ylab,
           cex.names=0.8,
           las=2,
           col="blue",
-          main=main,
+          main="",
+          # sub=main,
+          cex.main= 2,
           border="red")
+  
+  # x axis
+  mtext(text = "Project Name",side = 1,line = 6)
+  title(main, adj = 0.5, line = -22)
   
   # http://www.sthda.com/french/wiki/fonction-abline-de-r-comment-ajouter-facilement-une-droite-a-un-graphique
   abline(h=20,col="red",lty=2)
@@ -148,14 +157,18 @@ bar_plot_references_projects <- function(df,type,format){
 
 
 
+
 barchart_stacked_area_references_projects <- function(df,type,format){
 
   filename <- paste("barchart_stacked_area_references_projects_", Sys.Date(),sep="")
   switch(format,
-         svg={svg(paste(filename,".svg",sep=""), width=15, height=5)},
+         svg={svg(paste(filename,".svg",sep=""), width=30, height=10)},
          png={png(paste(filename,".png",sep=""), width=1500, height=500)}
   )
   # Create the input vectors.
+  
+  par(mar=c(18, 5, 5, 5), mgp=c(3, 1, 0), las=0)
+  
   project <- df$content
   search <- c("Mots-Clés","Plein Texte","Collection dédiée")
   colors = c("green","orange","red")
@@ -166,11 +179,20 @@ barchart_stacked_area_references_projects <- function(df,type,format){
                    byrow = TRUE
                    )
   barplot(Values,
-          main = "Références bibliographiques par projet COI selon le type de recherche",
+          main = "",
+          # sub = "Références bibliographiques par projet COI selon le type de recherche",
+          cex.main= 2,
           names.arg = project,
-          xlab = "Projet",
+          xlab = "",
           ylab = "Nombre de références",
+          cex.names=0.8,
+          las=2,
           col = colors)
+  
+  # x axis
+  mtext(text = "Project Name",side = 1,line = 6)
+  title("Références bibliographiques par projet COI selon le type de recherche", adj = 0.5, line = -25)
+  
   
   legend("topleft", search, cex = 1.3, fill = colors)
   dev.off()
@@ -183,7 +205,7 @@ Pie_Chart_references_projects <- function(df,type,format){
   filename <- paste("Pie_Chart_references_projects_", Sys.Date(),sep="")
   switch(format,
          svg={svg(paste(filename,".svg",sep=""), width=15, height=15)},
-         png={png(paste(filename,".png",sep=""), width=500, height=500)}
+         png={png(paste(filename,".png",sep=""), width=1500, height=1500)}
   )
   
 # Simple Pie Chart
@@ -193,12 +215,45 @@ project <- df$content
 pie(slices,
     labels = project,
     col=rainbow(length(project)),
-    main="References per project")
+    cex=2,
+    main=paste0("Références bibliographiques des projets COI: ",Zotero_total_projects," références"),
+    # main="References per project",
+    cex.main= 3
+)
+
 dev.off()
 
 }
 
+Pie_Chart_summary <- function(df,type,format){
+  
 
+# Simple Pie Chart
+
+  filename <- paste("Pie_Chart_summary_", Sys.Date(),sep="")
+  switch(format,
+         svg={svg(paste(filename,".svg",sep=""), width=15, height=15)},
+         png={png(paste(filename,".png",sep=""), width=1000, height=1000)}
+  )
+  
+  
+ratio <- c(Zotero_total_number-Zotero_projects_IOC_number, Zotero_projects_IOC_number)
+references <- c(paste0("Projets COI (",Zotero_total_projects), paste0("COI (",Zotero_projects_IOC_number))
+pct <- round(ratio/sum(ratio)*100)
+references <- paste0(references," => ",pct,"%)") # add percents to labels 
+
+pie(ratio,
+    labels = references,
+    col=rainbow(length(ratio)),
+    main=paste0("Références bibliographiques COI sur Zotero: ",Zotero_total_number),
+    # main=paste0("COI References linked to the projects (Total: ",Zotero_total_number," references)"),
+    cex=2,
+    cex.main= 3
+    # radius = 1.5
+)
+dev.off()
+
+}
 
 
 #####################################################################################################################################################################
